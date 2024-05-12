@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import HealthEntries from "@/components/HealthEntries.vue";
+import HeartRateList from "@/components/HeartRateList.vue";
 </script>
 
 <template>
   <main>
-    <HealthEntries />
+    <HeartRateList />
   </main>
 </template>

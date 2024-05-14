@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';
+import '@/assets/HeartRateList.css';
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const heartRates = ref([70, 72, 68, 86, 45]);
@@ -65,32 +66,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.container {
-  font-family: 'Open Sans', sans-serif;
-  color: #333;
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
 
-.list-container {
-  margin-top: 20px;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  margin-bottom: 10px;
-  font-size: 14px;
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  color: black;
-}
-</style>

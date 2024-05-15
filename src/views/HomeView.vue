@@ -7,3 +7,5 @@ import HeartRateList from "@/components/HeartRateList.vue";
     <HeartRateList />
   </main>
 </template>
+
+//axios.get

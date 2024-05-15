@@ -1,20 +1,12 @@
 pm<script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-//import HealthEntries from './components/HeartRateList.vue'   weil schon in der Home.vue definiert
+import Navbar from '@/components/Navbar.vue'
 </script>
 
 <template>
-  <header>
+<Navbar>
 
-    <div class="wrapper">
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
+</Navbar>
   <RouterView />
 </template>
 

@@ -12,6 +12,7 @@
   </div>
 </template>
 
+//v-for,das für jedes Element im heartRates-Array ein entsprechendes li-Element gerendert wird.
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';

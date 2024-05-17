@@ -16,6 +16,7 @@ const name = 'Navbar';
           <router-link class="nav-link" to="/">Home</router-link>
           <router-link class="nav-link" to="/about">About</router-link>
           <router-link class="nav-link" to="/persons">Persons</router-link>
+          <router-link class="nav-link" to="/heartrate">HeartRate</router-link>
           <li class="nav-item">
           </li>
         </ul>

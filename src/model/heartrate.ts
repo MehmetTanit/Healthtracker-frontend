@@ -6,11 +6,4 @@ export class HeartRate extends HealthMetric {
         super(id, userId, dateRecorded, "HeartRate", value, "bpm");
     }
 
-    getHeartRateValue(): number {
-        return this.getValue();
-    }
-
-    setHeartRateValue(value: number): void {
-        this.setValue(value);
-    }
 }

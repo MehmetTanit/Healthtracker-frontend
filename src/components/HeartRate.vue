@@ -22,17 +22,19 @@ import '@/assets/HeartRate.css';
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const heartRates = ref<HeartRate[]>([]);
 
+const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL
+const endpoint = baseUrl + '/HeartRate';
+
 function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('de-DE');
 }
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:8080/HeartRate');
+    const response = await axios.get(endpoint);
     const data = response.data;
 
-    // Debugging: Logge die abgerufenen Daten
-    console.log('API response data:', data);
+    console.log('API-Antwortdaten:', data);
 
     heartRates.value = data.map((entry: any) => new HeartRate(
         entry.id,
@@ -41,8 +43,8 @@ onMounted(async () => {
         entry.value
     ));
 
-    // Debugging: Logge die verarbeiteten HeartRate-Objekte
-    console.log('Processed heartRates:', heartRates.value);
+    // Debugging: Protokolliere die verarbeiteten HeartRate-Objekte
+    console.log('Verarbeitete Herzfrequenzen:', heartRates.value);
 
     if (chartCanvas.value) {
       const ctx = chartCanvas.value.getContext('2d');
@@ -82,7 +84,7 @@ onMounted(async () => {
       }
     }
   } catch (error) {
-    console.error('Error fetching heart rate data:', error);
+    console.error('Fehler beim Abrufen der Herzfrequenzdaten:', error);
   }
 });
 </script>

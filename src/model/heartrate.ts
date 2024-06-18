@@ -1,9 +1,11 @@
-import { HealthMetric } from "@/model/healthmetric";
+export class HeartRate {
 
-export class HeartRate extends HealthMetric {
+    dateRecorded: Date;
+    heartRateValue: number;
 
-    constructor(id: number, userId: number, dateRecorded: Date, value: number) {
-        super(id, userId, dateRecorded, "HeartRate", value, "bpm");
+    constructor(id: number, dateRecorded: Date, heartRateValue: number) {
+        this.dateRecorded = dateRecorded;
+        this.heartRateValue = heartRateValue;
     }
 
 }

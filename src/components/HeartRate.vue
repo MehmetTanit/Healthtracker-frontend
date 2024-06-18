@@ -37,7 +37,7 @@ const heartRates = ref<HeartRate[]>([]);
 const newHeartRate = ref('');
 
 const fetchHeartRates = () => {
-  axios.get(import.meta.env.VITE_APP_BACKEND_BASE_URL + '/heartrates')
+  axios.get(import.meta.env.VITE_APP_BACKEND_BASE_URL + '/heartrate')
       .then(response => {
         heartRates.value = response.data;
       })
@@ -52,7 +52,7 @@ const submitHeartRate = () => {
     dateRecorded: new Date().toISOString(),
   };
 
-  axios.post(import.meta.env.VITE_APP_BACKEND_BASE_URL + '/heartrates', newHeartRateEntry)
+  axios.post(import.meta.env.VITE_APP_BACKEND_BASE_URL + '/heartrate', newHeartRateEntry)
       .then(() => {
         newHeartRate.value = '';
         fetchHeartRates();

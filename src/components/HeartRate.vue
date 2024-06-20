@@ -7,7 +7,7 @@
     <div>
       <h2>Neuer HeartRateEintrag</h2>
       <span>Geben Sie hier ein in welcher Zeit (in Stunden) Sie das schaffen wollen</span>
-      <input v-model="newHeartRate.heartRateValue" type="text" placeholder="HeartRateWert">
+      <input v-model="newHeartRate.heartRateValue" type="number" placeholder="HeartRateWert">
       <button @click="submitHeartRate">Senden</button>
     </div>
 
@@ -80,6 +80,7 @@ async function submitHeartRate() {
         new Date(response.data.dateRecorded),
         response.data.heartRateValue,
     ));
+    newHeartRate.value.heartRateValue = 0; // Reset the input field
     updateChart(); // Aktualisiere das Diagramm nach dem Speichern
   } catch (error) {
     console.error('Fehler beim Speichern der Herzfrequenz:', error);

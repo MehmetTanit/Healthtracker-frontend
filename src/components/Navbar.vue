@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import SleepPattern from "@/components/SleepPattern.vue";
+
 const name = 'Navbar';
 
 </script>
@@ -17,6 +19,7 @@ const name = 'Navbar';
           <router-link class="nav-link" to="/about">About</router-link>
           <router-link class="nav-link" to="/users">Users</router-link>
           <router-link class="nav-link" to="/heartrate">HeartRate</router-link>
+          <router-link class="nav-link" to="/sleeppattern">SleepPattern</router-link>
           <li class="nav-item">
           </li>
         </ul>

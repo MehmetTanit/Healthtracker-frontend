@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import Persons from "@/views/UsersView.vue";
 import HeartRateView from "@/views/HeartRateView.vue";
 import UsersView from "@/views/UsersView.vue";
+import SleepPatternView from "@/views/SleepPatternView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,9 +24,14 @@ const router = createRouter({
     },
     {
     path: '/heartrate',
-    name: 'Heartrate',
+    name: 'heartrate',
     component: HeartRateView
 },
+    {
+      path: '/sleeppattern',
+      name: 'sleeppattern',
+      component: SleepPatternView
+    },
     {
       path: '/users',
       name: 'Users',

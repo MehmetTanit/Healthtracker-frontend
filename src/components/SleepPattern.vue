@@ -1,3 +1,31 @@
+<template>
+  <div>
+    <h3>{{ title }}</h3>
+    <div>
+      <label for="sleepDuration">Sleep Duration:</label>
+      <input v-model="sleepDurationInput" id="sleepDuration" type="number">
+      <button @click="saveSleepPattern">Save</button>
+    </div>
+    <div>
+      <table v-if="sleepPatterns.length > 0">
+        <thead>
+        <tr>
+          <th>Date Recorded</th>
+          <th>Sleep Duration</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="pattern in sleepPatterns" :key="pattern.id">
+          <td>{{ pattern.dateRecorded }}</td>
+          <td>{{ pattern.sleepDuration }}</td>
+        </tr>
+        </tbody>
+      </table>
+      <p v-else>No sleep patterns recorded yet.</p>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
@@ -10,7 +38,7 @@ defineProps<{
 const sleepPatterns = ref<SleepPattern[]>([])
 const sleepDurationInput = ref<number>(0)
 
-const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL // 'http://localhost:8080' in dev mode
+const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL // 'http://localhost:8080' in dev mode
 
 async function saveSleepPattern() {
   const endpoint = `${baseUrl}/SleepPattern/sleeppattern`
@@ -44,3 +72,16 @@ onMounted(() => {
   loadSleepPatterns()
 })
 </script>
+
+<style scoped>
+h3 {
+  text-align: center;
+}
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+button {
+  color: blue;
+}
+</style>

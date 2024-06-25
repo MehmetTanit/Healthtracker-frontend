@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import SleepPattern from "@/components/SleepPattern.vue";
 
 const name = 'Navbar';
 

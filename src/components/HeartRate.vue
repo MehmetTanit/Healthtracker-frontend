@@ -62,17 +62,10 @@ async function fetchHeartRates() {
 
 // Funktion zum Speichern der Herzfrequenz
 async function submitHeartRate() {
-  const heartRateValue = newHeartRate.value.heartRateValue;
-  if (!heartRateValue || heartRateValue <= 0) {
-    alert('Bitte geben Sie einen gültigen Herzfrequenzwert ein.');
-    return;
-  }
-
   const heartRateData = {
-    dateRecorded: new Date(), // Setze das aktuelle Datum und die aktuelle Uhrzeit
-    heartRateValue: heartRateValue,
+    dateRecorded: new Date().toISOString(), // Setze das aktuelle Datum und die aktuelle Uhrzeit im ISO-Format
+    heartRateValue: newHeartRate.value.heartRateValue,
   };
-
 
   try {
     const response = await axios.post(endpoint, heartRateData, {
@@ -86,7 +79,7 @@ async function submitHeartRate() {
         new Date(response.data.dateRecorded),
         response.data.heartRateValue,
     ));
-    newHeartRate.value.heartRateValue = 72; // Reset the input field
+    newHeartRate.value.heartRateValue = 0; // Reset the input field
     updateChart(); // Aktualisiere das Diagramm nach dem Speichern
   } catch (error) {
     console.error('Fehler beim Speichern der Herzfrequenz:', error);

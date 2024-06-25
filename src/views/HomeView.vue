@@ -72,7 +72,7 @@ const features = ref([
 
 <style scoped>
 .hero-section {
-  background: url('https://source.unsplash.com/1600x900/?health,fitness') no-repeat center center;
+  background: url('/2465431.jpg') no-repeat center center;
   background-size: cover;
   color: white;
   padding: 100px 0;

@@ -60,7 +60,7 @@ async function fetchSleepPatterns() {
     const response = await axios.get(endpoint);
     sleepPatterns.value = response.data.map((entry: any) => new SleepPattern(
         entry.id,
-        entry.dateRecorded,
+        new Date(entry.dateRecorded),
         entry.sleepDuration
     ));
     updateChart(); // Aktualisiere das Diagramm nach dem Abrufen der Daten
@@ -83,12 +83,11 @@ async function saveSleepPattern() {
       },
     });
     console.log('Schlafmuster gespeichert:', response.data);
-    const newPattern = new SleepPattern(
+    sleepPatterns.value.push(new SleepPattern(
         response.data.id,
-        response.data.dateRecorded,
+        new Date(response.data.dateRecorded),
         response.data.sleepDuration
-    );
-    sleepPatterns.value.push(newPattern);
+    ));
     sleepDurationInput.value = 0; // Reset the input field
     updateChart(); // Aktualisiere das Diagramm nach dem Speichern
   } catch (error) {

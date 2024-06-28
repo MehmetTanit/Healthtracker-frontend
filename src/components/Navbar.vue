@@ -15,8 +15,6 @@ const name = 'Navbar';
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <router-link class="nav-link" to="/">Home</router-link>
-          <router-link class="nav-link" to="/about">About</router-link>
-          <router-link class="nav-link" to="/users">Users</router-link>
           <router-link class="nav-link" to="/heartrate">HeartRate</router-link>
           <router-link class="nav-link" to="/sleeppattern">SleepPattern</router-link>
           <li class="nav-item">

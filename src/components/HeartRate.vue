@@ -1,20 +1,29 @@
 <template>
   <div class="container">
     <h2>Herzfrequenzüberwachung</h2>
-    <canvas ref="chartCanvas"></canvas>
+    <canvas ref="chartCanvas" width="200" height="50"></canvas>
 
-    <!-- Eingabeformular -->
-    <div>
-      <h2>Neuer HeartRateEintrag</h2>
-      <input v-model="newHeartRate.heartRateValue" type="number" placeholder="HeartRateWert">
-      <button @click="submitHeartRate">Senden</button>
+    <!-- Eingabeformular für neue Herzfrequenzdaten -->
+    <div class="form-container">
+      <h2>Neuer Herzfrequenz-Eintrag</h2>
+      <form @submit.prevent="submitHeartRate">
+        <label>
+          Herzfrequenzwert:
+          <input v-model="newHeartRate.heartRateValue" type="number" placeholder="Herzfrequenzwert" required>
+        </label>
+        <button type="submit">Senden</button>
+        <p v-if="invalidInput">Bitte geben Sie einen gültigen Herzfrequenzwert ein.</p>
+      </form>
     </div>
 
     <!-- Liste der Herzfrequenzdaten -->
     <div class="list-container">
+      <h2>Herzfrequenzdaten</h2>
+      <p>Anzahl der Herzfrequenzdaten: {{ heartRates.length }}</p>
       <ul>
         <li v-for="(heartRate, index) in heartRates" :key="index">
           Datum: <strong>{{ formatDate(heartRate.dateRecorded) }}</strong>, Herzfrequenz: {{ heartRate.heartRateValue }}
+          <button @click="deleteHeartRate(heartRate.id)" type="reset">Löschen</button>
         </li>
       </ul>
     </div>
@@ -35,17 +44,18 @@ const newHeartRate = ref<Partial<HeartRate>>({
   heartRateValue: 72
 });
 let chart: Chart | null = null;
+const invalidInput = ref(false); // Zustand für ungültige Eingabe
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
-const endpoint = baseUrl + '/HeartRates';
+const endpoint = `${baseUrl}/HeartRates`;
 
 // Hilfsfunktion zum Formatieren des Datums
 function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('de-DE');
 }
 
-// Funktion zum Abrufen der Herzfrequenzen
+// Funktion zum Abrufen der Herzfrequenzdaten
 async function fetchHeartRates() {
   try {
     const response = await axios.get(endpoint);
@@ -60,10 +70,16 @@ async function fetchHeartRates() {
   }
 }
 
-// Funktion zum Speichern der Herzfrequenz
+// Funktion zum Speichern einer neuen Herzfrequenz
 async function submitHeartRate() {
+  // Validierung: Herzfrequenzwert muss größer als 0 sein
+  if (!newHeartRate.value.heartRateValue || newHeartRate.value.heartRateValue <= 0) {
+    invalidInput.value = true;
+    return;
+  }
+
   const heartRateData = {
-    dateRecorded: new Date().toISOString(), // Setze das aktuelle Datum und die aktuelle Uhrzeit im ISO-Format
+    dateRecorded: new Date().toISOString(), // Aktuelles Datum und Uhrzeit im ISO-Format
     heartRateValue: newHeartRate.value.heartRateValue,
   };
 
@@ -79,10 +95,22 @@ async function submitHeartRate() {
         new Date(response.data.dateRecorded),
         response.data.heartRateValue,
     ));
-    newHeartRate.value.heartRateValue = 0; // Reset the input field
+    newHeartRate.value.heartRateValue = 0; // Zurücksetzen des Eingabefelds
     updateChart(); // Aktualisiere das Diagramm nach dem Speichern
+    invalidInput.value = false; // Zurücksetzen der ungültigen Eingabe-Meldung
   } catch (error) {
     console.error('Fehler beim Speichern der Herzfrequenz:', error);
+  }
+}
+
+// Funktion zum Löschen einer Herzfrequenz
+async function deleteHeartRate(id: number) {
+  try {
+    await axios.delete(`${endpoint}/${id}`);
+    heartRates.value = heartRates.value.filter(hr => hr.id !== id);
+    updateChart(); // Aktualisiere das Diagramm nach dem Löschen
+  } catch (error) {
+    console.error('Fehler beim Löschen der Herzfrequenz:', error);
   }
 }
 
@@ -130,36 +158,9 @@ function updateChart() {
   }
 }
 
-// Initiales Abrufen der Daten
+// Initiales Abrufen der Herzfrequenzdaten
 onMounted(async () => {
   await fetchHeartRates();
 });
 </script>
 
-<style scoped>
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.form-container {
-  margin-top: 20px;
-}
-
-.form-container form {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-container label {
-  margin-top: 10px;
-}
-
-.form-container input {
-  margin-bottom: 10px;
-}
-
-.list-container {
-  margin-top: 20px;
-}
-</style>

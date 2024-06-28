@@ -14,11 +14,13 @@
       <div class="container">
         <div class="row text-center">
           <div class="col-md-4" v-for="(feature, index) in features" :key="index">
-            <div class="mb-4">
-              <i :class="`feature-icon bi bi-${feature.icon}`"></i>
-            </div>
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
+            <router-link :to="feature.link" class="feature-link">
+              <div class="mb-4">
+                <i :class="`feature-icon bi bi-${feature.icon}`"></i>
+              </div>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.description }}</p>
+            </router-link>
           </div>
         </div>
       </div>
@@ -40,32 +42,38 @@ const features = ref([
   {
     icon: 'heart',
     title: 'Herzfrequenz',
-    description: 'Überwachen Sie Ihre Herzfrequenz und erhalten Sie wertvolle Einblicke in Ihre kardiovaskuläre Gesundheit.'
+    description: 'Überwachen Sie Ihre Herzfrequenz und erhalten Sie wertvolle Einblicke in Ihre kardiovaskuläre Gesundheit.',
+    link: '/heartrate'
   },
   {
     icon: 'speedometer',
     title: 'Blutdruck',
-    description: 'Verfolgen Sie Ihren Blutdruck, um Ihre Herzgesundheit im Auge zu behalten.'
+    description: 'Verfolgen Sie Ihren Blutdruck, um Ihre Herzgesundheit im Auge zu behalten.',
+    link: '/bloodpressure'
   },
   {
     icon: 'person-lines-fill',
     title: 'Gewicht',
-    description: 'Überprüfen Sie Ihre Gewichtsveränderungen und setzen Sie sich gesundheitsbewusste Ziele.'
+    description: 'Überprüfen Sie Ihre Gewichtsveränderungen und setzen Sie sich gesundheitsbewusste Ziele.',
+    link: '/weight'
   },
   {
     icon: 'bicycle',
     title: 'Schrittzähler',
-    description: 'Verfolgen Sie Ihre täglichen Schritte und bleiben Sie aktiv.'
+    description: 'Verfolgen Sie Ihre täglichen Schritte und bleiben Sie aktiv.',
+    link: '/stepcount'
   },
   {
     icon: 'moon',
     title: 'Schlafmuster',
-    description: 'Analysieren Sie Ihre Schlafgewohnheiten und verbessern Sie Ihre Schlafqualität.'
+    description: 'Analysieren Sie Ihre Schlafgewohnheiten und verbessern Sie Ihre Schlafqualität.',
+    link: '/sleeppattern'
   },
   {
     icon: 'droplet-half',
     title: 'Blutzuckerspiegel',
-    description: 'Behalten Sie Ihren Blutzuckerspiegel im Auge und verwalten Sie Ihre Diabetes.'
+    description: 'Behalten Sie Ihren Blutzuckerspiegel im Auge und verwalten Sie Ihre Diabetes.',
+    link: '/bloodsugar'
   }
 ]);
 </script>
@@ -77,6 +85,16 @@ const features = ref([
   color: white;
   padding: 100px 0;
   text-align: center;
+}
+
+.feature-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.feature-link:hover {
+  text-decoration: none;
+  color: inherit;
 }
 
 .feature-icon {

@@ -1,0 +1,241 @@
+<template>
+  <div class="container">
+    <h2>Schrittzählerüberwachung</h2>
+    <canvas ref="chartCanvas" class="chart" width="200" height="50"></canvas>
+
+    <!-- Eingabeformular -->
+    <div class="form-container">
+      <h3>Neuer Schrittzähler-Eintrag</h3>
+      <label for="stepCount">Schrittanzahl:</label>
+      <input v-model="stepCountInput" id="stepCount" type="number" placeholder="Schrittanzahl">
+
+      <button @click="saveStepCount">Speichern</button>
+    </div>
+
+    <!-- Liste der Schrittzähler-Einträge -->
+    <div class="list-container">
+      <table v-if="stepCounts.length > 0">
+        <thead>
+        <tr>
+          <th>Datum</th>
+          <th>Schrittanzahl</th>
+          <th>Aktion</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(entry, index) in stepCounts" :key="index">
+          <td>{{ formatDate(entry.dateRecorded) }}</td>
+          <td>{{ entry.stepCount }}</td>
+          <td><button @click="deleteStepCount(entry.id)">Löschen</button></td>
+        </tr>
+        </tbody>
+      </table>
+      <p v-else>Noch keine Schrittzähler-Einträge aufgezeichnet.</p>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import Chart from 'chart.js/auto';
+import axios from 'axios';
+
+// Definiere die StepCount-Klasse
+class StepCount {
+  id: number;
+  dateRecorded: Date;
+  stepCount: number;
+  value: number;
+  unit: string;
+
+  constructor(id: number, dateRecorded: Date, stepCount: number, value: number, unit: string) {
+    this.id = id;
+    this.dateRecorded = dateRecorded;
+    this.stepCount = stepCount;
+    this.value = value;
+    this.unit = unit;
+  }
+}
+
+// Referenzen und Zustände
+const chartCanvas = ref<HTMLCanvasElement | null>(null);
+const stepCounts = ref<StepCount[]>([]);
+const stepCountInput = ref<number>(0);
+let chart: Chart | null = null;
+
+// API-Endpunkt
+const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
+const endpoint = `${baseUrl}/StepCounts`;
+
+// Hilfsfunktion zum Formatieren des Datums
+function formatDate(date: Date): string {
+  return new Date(date).toLocaleDateString('de-DE');
+}
+
+// Funktion zum Abrufen der Schrittzähler-Einträge
+async function fetchStepCounts() {
+  try {
+    const response = await axios.get(endpoint);
+    stepCounts.value = response.data.map((entry: any) => new StepCount(
+        entry.id,
+        new Date(entry.dateRecorded),
+        entry.stepCount,
+        entry.value,
+        entry.unit
+    ));
+    updateChart();
+  } catch (error) {
+    console.error('Fehler beim Abrufen der Schrittzähler-Daten:', error);
+  }
+}
+
+// Funktion zum Speichern eines neuen Schrittzähler-Eintrags
+async function saveStepCount() {
+  const stepCountData = {
+    dateRecorded: new Date().toISOString(),
+    stepCount: stepCountInput.value,
+    value: stepCountInput.value,
+    unit: 'Schritte',
+  };
+
+  try {
+    const response = await axios.post(endpoint, stepCountData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    stepCounts.value.push(new StepCount(
+        response.data.id,
+        new Date(response.data.dateRecorded),
+        response.data.stepCount,
+        response.data.value,
+        response.data.unit
+    ));
+    stepCountInput.value = 0;
+    updateChart();
+  } catch (error) {
+    console.error('Fehler beim Speichern des Schrittzählers:', error);
+  }
+}
+
+// Funktion zum Löschen eines Schrittzähler-Eintrags
+async function deleteStepCount(id: number) {
+  try {
+    await axios.delete(`${endpoint}/${id}`);
+    stepCounts.value = stepCounts.value.filter(sc => sc.id !== id);
+    updateChart();
+  } catch (error) {
+    console.error('Fehler beim Löschen des Schrittzählers:', error);
+  }
+}
+
+// Funktion zum Aktualisieren des Diagramms
+function updateChart() {
+  if (chartCanvas.value) {
+    const ctx = chartCanvas.value.getContext('2d');
+    if (ctx) {
+      if (chart) {
+        chart.destroy();
+      }
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: stepCounts.value.map(sc => formatDate(sc.dateRecorded)),
+          datasets: [{
+            label: 'Schrittanzahl',
+            data: stepCounts.value.map(sc => sc.stepCount),
+            borderColor: '#FF6347',
+            borderWidth: 2,
+            pointBackgroundColor: '#FF6347',
+            pointBorderColor: '#FFF',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            tension: 0.4
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          elements: {
+            line: {
+              tension: 0.4
+            },
+            point: {
+              radius: 5
+            }
+          }
+        }
+      });
+    }
+  }
+}
+
+onMounted(async () => {
+  await fetchStepCounts();
+});
+</script>
+
+<style scoped>
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Open Sans', sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.form-container label {
+  margin-top: 10px;
+  display: block;
+}
+
+.form-container input {
+  margin-bottom: 10px;
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.list-container {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+button {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+</style>

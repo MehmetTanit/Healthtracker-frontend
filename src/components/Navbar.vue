@@ -1,8 +1,5 @@
 <script setup lang="ts">
-
-
 const name = 'Navbar';
-
 </script>
 
 <template>
@@ -17,8 +14,10 @@ const name = 'Navbar';
           <router-link class="nav-link" to="/">Home</router-link>
           <router-link class="nav-link" to="/heartrate">HeartRate</router-link>
           <router-link class="nav-link" to="/sleeppattern">SleepPattern</router-link>
-          <li class="nav-item">
-          </li>
+          <router-link class="nav-link" to="/bloodpressure">BloodPressure</router-link>
+          <router-link class="nav-link" to="/bloodsugar">BloodSugar</router-link>
+          <router-link class="nav-link" to="/stepcount">StepCount</router-link>
+          <router-link class="nav-link" to="/weight">Weight</router-link>
         </ul>
       </div>
     </div>
@@ -26,5 +25,13 @@ const name = 'Navbar';
 </template>
 
 <style scoped>
-
+.navbar {
+  font-family: 'Open Sans', sans-serif;
+}
+.navbar-brand {
+  font-weight: bold;
+}
+.nav-link {
+  margin-right: 10px;
+}
 </style>

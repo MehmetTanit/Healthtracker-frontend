@@ -8,7 +8,8 @@
       <h3>Neuer Schrittzähler-Eintrag</h3>
       <label for="stepCount">Schrittanzahl:</label>
       <input v-model="stepCountInput" id="stepCount" type="number" placeholder="Schrittanzahl">
-
+      <label for="targetStepCount">Tägliches Ziel:</label>
+      <input v-model="targetStepCountInput" id="targetStepCount" type="number" placeholder="Tägliches Ziel">
       <button @click="saveStepCount">Speichern</button>
     </div>
 
@@ -19,6 +20,8 @@
         <tr>
           <th>Datum</th>
           <th>Schrittanzahl</th>
+          <th>Tägliches Ziel</th>
+          <th>Differenz</th>
           <th>Aktion</th>
         </tr>
         </thead>
@@ -26,6 +29,8 @@
         <tr v-for="(entry, index) in stepCounts" :key="index">
           <td>{{ formatDate(entry.dateRecorded) }}</td>
           <td>{{ entry.stepCount }}</td>
+          <td>{{ entry.targetStepCount }}</td>
+          <td>{{ calculateDifference(entry.stepCount, entry.targetStepCount) }}</td>
           <td><button @click="deleteStepCount(entry.id)">Löschen</button></td>
         </tr>
         </tbody>
@@ -45,15 +50,13 @@ class StepCount {
   id: number;
   dateRecorded: Date;
   stepCount: number;
-  value: number;
-  unit: string;
+  targetStepCount: number;
 
-  constructor(id: number, dateRecorded: Date, stepCount: number, value: number, unit: string) {
+  constructor(id: number, dateRecorded: Date, stepCount: number, targetStepCount: number) {
     this.id = id;
     this.dateRecorded = dateRecorded;
     this.stepCount = stepCount;
-    this.value = value;
-    this.unit = unit;
+    this.targetStepCount = targetStepCount;
   }
 }
 
@@ -61,15 +64,21 @@ class StepCount {
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const stepCounts = ref<StepCount[]>([]);
 const stepCountInput = ref<number>(0);
+const targetStepCountInput = ref<number>(10000); // Standardziel: 10000 Schritte
 let chart: Chart | null = null;
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
-const endpoint = `${baseUrl}/StepCounts`;
+const endpoint = `${baseUrl}/StepCounts/stepcount`;
 
 // Hilfsfunktion zum Formatieren des Datums
 function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('de-DE');
+}
+
+// Funktion zum Berechnen der Differenz zwischen Schrittanzahl und Ziel
+function calculateDifference(stepCount: number, targetStepCount: number): number {
+  return targetStepCount - stepCount;
 }
 
 // Funktion zum Abrufen der Schrittzähler-Einträge
@@ -80,8 +89,7 @@ async function fetchStepCounts() {
         entry.id,
         new Date(entry.dateRecorded),
         entry.stepCount,
-        entry.value,
-        entry.unit
+        entry.targetStepCount
     ));
     updateChart();
   } catch (error) {
@@ -94,8 +102,7 @@ async function saveStepCount() {
   const stepCountData = {
     dateRecorded: new Date().toISOString(),
     stepCount: stepCountInput.value,
-    value: stepCountInput.value,
-    unit: 'Schritte',
+    targetStepCount: targetStepCountInput.value,
   };
 
   try {
@@ -108,10 +115,10 @@ async function saveStepCount() {
         response.data.id,
         new Date(response.data.dateRecorded),
         response.data.stepCount,
-        response.data.value,
-        response.data.unit
+        response.data.targetStepCount
     ));
     stepCountInput.value = 0;
+    targetStepCountInput.value = 10000; // Standardziel zurücksetzen
     updateChart();
   } catch (error) {
     console.error('Fehler beim Speichern des Schrittzählers:', error);

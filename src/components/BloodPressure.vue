@@ -69,7 +69,7 @@ let chart: Chart | null = null;
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
-const endpoint = `${baseUrl}/BloodPressures`;
+const endpoint = `${baseUrl}/BloodPressures/bloodpressure`;
 
 // Hilfsfunktion zum Formatieren des Datums
 function formatDate(date: Date): string {

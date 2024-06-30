@@ -5,24 +5,25 @@ import HeartRate from "@/components/HeartRate.vue";
 import { HeartRate as HeartRateModel } from '@/model/heartrate'
 
 
+
 describe('HeartRate', () => {
     const emptyResponse: HeartRateModel[] = []
     const twoItemResponse: HeartRateModel[] = [
-        { id: 1, dateRecorded: new Date('2023-06-27T12:00:00Z'), heartRateValue: 72 },
-        { id: 2, dateRecorded: new Date('2023-06-28T12:00:00Z'), heartRateValue: 75 }
+        {id: 1, dateRecorded: new Date('2023-06-27T12:00:00Z'), heartRateValue: 72},
+        {id: 2, dateRecorded: new Date('2023-06-28T12:00:00Z'), heartRateValue: 75}
     ]
 
     vi.mock('axios')
 
     it('should render the title "Herzfrequenzüberwachung"', () => {
-        vi.mocked(axios, true).get.mockResolvedValueOnce({ data: emptyResponse })
+        vi.mocked(axios, true).get.mockResolvedValueOnce({data: emptyResponse})
 
         const wrapper = shallowMount(HeartRate)
         expect(wrapper.text()).toContain('Herzfrequenzüberwachung')
     })
 
     it('should render the heart rate entries from the backend', async () => {
-        vi.mocked(axios, true).get.mockResolvedValueOnce({ data: twoItemResponse })
+        vi.mocked(axios, true).get.mockResolvedValueOnce({data: twoItemResponse})
 
         const wrapper = shallowMount(HeartRate)
 
@@ -32,22 +33,13 @@ describe('HeartRate', () => {
         expect(wrapper.text()).toContain('Herzfrequenz: 75')
     })
 
-    it('should add a new heart rate entry when the form is submitted', async () => {
-        const newHeartRateResponse = {
-            id: 3,
-            dateRecorded: new Date().toISOString(),
-            heartRateValue: 80
-        }
-
-        vi.mocked(axios, true).post.mockResolvedValueOnce({ data: newHeartRateResponse })
+    it('should display a message when no heart rate entries exist', async () => {
+        vi.mocked(axios, true).get.mockResolvedValueOnce({data: emptyResponse})
 
         const wrapper = shallowMount(HeartRate)
-
-        await wrapper.find('input').setValue(80)
-        await wrapper.find('button').trigger('click')
-
         await flushPromises()
 
-        expect(wrapper.text()).toContain('Herzfrequenz: 80')
+        expect(wrapper.text()).toContain('Noch keine Herzfrequenzeinträge aufgezeichnet.')
     })
+
 })

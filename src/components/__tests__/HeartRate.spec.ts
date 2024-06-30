@@ -35,7 +35,6 @@ describe('HeartRateComponent', () => {
     }))
 
     it('should render the title', () => {
-        vi.mocked(axios.get).mockResolvedValueOnce({ data: twoItemResponse });
         const wrapper = shallowMount(HeartRateComponent)
         expect(wrapper.find('h2').text()).toBe('Herzfrequenzüberwachung')
     })

@@ -52,13 +52,14 @@ class BloodPressure {
   systolicPressure: number;
   diastolicPressure: number;
 
-  constructor(id: number, dateRecorded: Date, systolicPressure: number, diastolicPressure: number) {
-    this.id = id;
-    this.dateRecorded = dateRecorded;
-    this.systolicPressure = systolicPressure;
-    this.diastolicPressure = diastolicPressure;
+  constructor(id?: number, dateRecorded?: Date, systolicPressure?: number, diastolicPressure?: number) {
+    this.id = id ?? 0;
+    this.dateRecorded = dateRecorded ?? new Date();
+    this.systolicPressure = systolicPressure ?? 0;
+    this.diastolicPressure = diastolicPressure ?? 0;
   }
 }
+
 
 // Referenzen und Zustände
 const chartCanvas = ref<HTMLCanvasElement | null>(null);

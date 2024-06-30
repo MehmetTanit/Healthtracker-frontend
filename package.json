@@ -12,6 +12,7 @@
     "test:unit": "vitest"
   },
   "dependencies": {
+    "@auth0/auth0-vue": "^2.3.3",
     "@okta/okta-signin-widget": "^7.18.1",
     "@okta/okta-vue": "^5.7.0",
     "bootstrap": "^5.3.3",

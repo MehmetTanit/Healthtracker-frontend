@@ -51,10 +51,11 @@ button[type="reset"] {
     background-color: #007BFF; /* Blaue Hintergrundfarbe */
     color: #fff; /* Weiße Schriftfarbe */
     border: none;
-    padding: 5px 5px;
+    padding: 3px 6px;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s ease;
+    margin-right: 10px; /* Abstand zwischen Bearbeiten und Löschen */
 }
 
 button[type="submit"]:hover,

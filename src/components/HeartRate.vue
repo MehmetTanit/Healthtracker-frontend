@@ -30,7 +30,7 @@
           <input v-model="editableHeartRate.heartRateValue" type="number" placeholder="Neuer Herzfrequenzwert" required>
         </label>
         <button type="submit">Aktualisieren</button>
-        <button @click="cancelUpdate" type="button">Abbrechen</button>
+        <button @click="cancelUpdate" type="submit">Abbrechen</button>
       </form>
     </div>
 

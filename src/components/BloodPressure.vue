@@ -14,6 +14,19 @@
       <button @click="saveBloodPressure" class="btn-save">Speichern</button>
     </div>
 
+    <!-- Eingabeformular für das Aktualisieren von Blutdruckeinträgen -->
+    <div class="form-container" v-if="editableBloodPressure">
+      <h3>Blutdruckeintrag aktualisieren</h3>
+      <label for="updateSystolicPressure">Systolischer Druck (mmHg):</label>
+      <input v-model="editableBloodPressure.systolicPressure" id="updateSystolicPressure" type="number" placeholder="Systolischer Druck">
+
+      <label for="updateDiastolicPressure">Diastolischer Druck (mmHg):</label>
+      <input v-model="editableBloodPressure.diastolicPressure" id="updateDiastolicPressure" type="number" placeholder="Diastolischer Druck">
+
+      <button @click="updateBloodPressure" class="btn-save">Aktualisieren</button>
+      <button @click="cancelUpdate" class="btn-cancel">Abbrechen</button>
+    </div>
+
     <!-- Liste der Blutdruckeinträge -->
     <div class="list-container">
       <table v-if="bloodPressures.length > 0">
@@ -30,7 +43,10 @@
           <td>{{ formatDate(entry.dateRecorded) }}</td>
           <td>{{ entry.systolicPressure }}</td>
           <td>{{ entry.diastolicPressure }}</td>
-          <td><button @click="deleteBloodPressure(entry.id)" class="btn-delete">Löschen</button></td>
+          <td>
+            <button @click="editBloodPressure(entry)" class="btn-edit">Bearbeiten</button>
+            <button @click="deleteBloodPressure(entry.id)" class="btn-delete">Löschen</button>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -62,6 +78,7 @@ class BloodPressure {
 const bloodPressures = ref<BloodPressure[]>([]);
 const systolicPressureInput = ref<number>(0);
 const diastolicPressureInput = ref<number>(0);
+const editableBloodPressure = ref<BloodPressure | null>(null);
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
@@ -114,6 +131,47 @@ async function saveBloodPressure() {
   }
 }
 
+// Funktion zum Bearbeiten eines Blutdruckeintrags
+function editBloodPressure(bloodPressure: BloodPressure) {
+  editableBloodPressure.value = { ...bloodPressure };
+}
+
+// Funktion zum Aktualisieren eines Blutdruckeintrags
+async function updateBloodPressure() {
+  if (!editableBloodPressure.value) return;
+
+  try {
+    const response = await axios.put(`${endpoint}/${editableBloodPressure.value.id}`, editableBloodPressure.value, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const updatedBloodPressure = new BloodPressure(
+        response.data.id,
+        new Date(response.data.dateRecorded),
+        response.data.systolicPressure,
+        response.data.diastolicPressure
+    );
+
+    const index = bloodPressures.value.findIndex(bp => bp.id === updatedBloodPressure.id);
+    if (index !== -1) {
+      bloodPressures.value[index] = updatedBloodPressure;
+    }
+
+    // Reset editableBloodPressure
+    editableBloodPressure.value = null;
+
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren des Blutdrucks:', error);
+  }
+}
+
+// Funktion zum Abbrechen der Aktualisierung
+function cancelUpdate() {
+  editableBloodPressure.value = null;
+}
+
 // Funktion zum Löschen eines Blutdruckeintrags
 async function deleteBloodPressure(id: number) {
   try {
@@ -160,31 +218,18 @@ onMounted(async () => {
   border-radius: 4px;
 }
 
-.btn-save {
+.btn-save, .btn-cancel, .btn-edit, .btn-delete {
   background-color: #cc0000;
   color: #fff;
   border: none;
-  padding: 10px 20px;
+  padding: 3px 5px;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+  width: 100%
 }
 
-.btn-save:hover {
-  background-color: #a30000;
-}
-
-.btn-delete {
-  background-color: #cc0000;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-delete:hover {
+.btn-save:hover, .btn-cancel:hover, .btn-edit:hover, .btn-delete:hover {
   background-color: #a30000;
 }
 

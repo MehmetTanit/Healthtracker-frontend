@@ -5,15 +5,8 @@
 
     <!-- Pfeile zur Navigation -->
     <div class="navigation-arrows">
-      <!-- Pfeil zur Seite /heartrate -->
-      <router-link to="/bloodsugar" class="arrow-link">
-        ←
-      </router-link>
-
-      <!-- Pfeil zur Seite /bloodpressure -->
-      <router-link to="/weight" class="arrow-link">
-        →
-      </router-link>
+      <router-link to="/bloodsugar" class="arrow-link">←</router-link>
+      <router-link to="/weight" class="arrow-link">→</router-link>
     </div>
 
     <!-- Eingabeformular -->
@@ -23,7 +16,18 @@
       <input v-model="stepCountInput" id="stepCount" type="number" placeholder="Schrittanzahl">
       <label for="targetStepCount">Tägliches Ziel:</label>
       <input v-model="targetStepCountInput" id="targetStepCount" type="number" placeholder="Tägliches Ziel">
-      <button @click="saveStepCount"class="btn-small" >Speichern</button>
+      <button @click="saveStepCount" class="btn-small">Speichern</button>
+    </div>
+
+    <!-- Bearbeitungsformular -->
+    <div class="form-container" v-if="editableStepCount">
+      <h3>Schrittzähler-Eintrag bearbeiten</h3>
+      <label for="editStepCount">Schrittanzahl:</label>
+      <input v-model="editableStepCount.stepCount" id="editStepCount" type="number" placeholder="Schrittanzahl">
+      <label for="editTargetStepCount">Tägliches Ziel:</label>
+      <input v-model="editableStepCount.targetStepCount" id="editTargetStepCount" type="number" placeholder="Tägliches Ziel">
+      <button @click="updateStepCount" class="btn-small">Aktualisieren</button>
+      <button @click="cancelEdit" class="btn-small">Abbrechen</button>
     </div>
 
     <!-- Liste der Schrittzähler-Einträge -->
@@ -44,7 +48,10 @@
           <td>{{ entry.stepCount }}</td>
           <td>{{ entry.targetStepCount }}</td>
           <td>{{ calculateDifference(entry.stepCount, entry.targetStepCount) }}</td>
-          <td><button @click="deleteStepCount(entry.id)"class="btn-small">Löschen</button></td>
+          <td>
+            <button @click="editStepCount(entry)" class="btn-small">Bearbeiten</button>
+            <button @click="deleteStepCount(entry.id)" class="btn-small">Löschen</button>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -52,6 +59,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
@@ -64,6 +72,7 @@ const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const stepCounts = ref<StepCount[]>([]);
 const stepCountInput = ref<number>(0);
 const targetStepCountInput = ref<number>(10000); // Standardziel: 10000 Schritte
+const editableStepCount = ref<StepCount | null>(null); // Zustand für bearbeitbaren Schrittzähler-Eintrag
 let chart: Chart | null = null;
 
 // API-Endpunkt
@@ -135,6 +144,42 @@ async function deleteStepCount(id: number) {
   }
 }
 
+// Funktion zum Bearbeiten eines Schrittzähler-Eintrags
+function editStepCount(stepCount: StepCount) {
+  editableStepCount.value = { ...stepCount };
+}
+
+// Funktion zum Aktualisieren eines Schrittzähler-Eintrags
+async function updateStepCount() {
+  if (!editableStepCount.value) return;
+
+  try {
+    const response = await axios.put(`${endpoint}/${editableStepCount.value.id}`, editableStepCount.value, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const index = stepCounts.value.findIndex(sc => sc.id === response.data.id);
+    if (index !== -1) {
+      stepCounts.value[index] = new StepCount(
+          response.data.id,
+          new Date(response.data.dateRecorded),
+          response.data.stepCount,
+          response.data.targetStepCount
+      );
+    }
+    editableStepCount.value = null; // Zurücksetzen des Eingabefelds
+    updateChart();
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren des Schrittzählers:', error);
+  }
+}
+
+// Funktion zum Abbrechen der Bearbeitung
+function cancelEdit() {
+  editableStepCount.value = null;
+}
+
 // Funktion zum Aktualisieren des Diagramms
 function updateChart() {
   if (chartCanvas.value) {
@@ -185,6 +230,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Ihr bestehender Stylecode */
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -193,100 +239,64 @@ onMounted(async () => {
   background-color: #f9f9f9;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-
+.chart {
+  margin-bottom: 20px;
+}
 .form-container {
-  margin-top: 20px;
+  margin-bottom: 20px;
 }
-
-.form-container label {
-  margin-top: 10px;
+input[type="number"] {
   display: block;
-}
-
-.form-container input {
-  margin-bottom: 10px;
-  padding: 5px;
   width: 100%;
-  box-sizing: border-box;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
-
+button {
+  padding: 3px 5px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100px; /* Gleiche Breite für alle Buttons */
+}
+button.btn-small {
+  padding: 5px 10px;
+  margin-bottom: 5px; /* Lücke zwischen den Buttons */
+}
+button:hover {
+  background-color: #0056b3;
+}
 .list-container {
   margin-top: 20px;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
 }
-
-table th, table td {
+th, td {
+  padding: 10px;
   border: 1px solid #ddd;
-  padding: 8px;
-}
-
-table th {
-  background-color: #f2f2f2;
   text-align: left;
 }
-
-button {
-  background-color: #007BFF;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+th {
+  background-color: #f2f2f2;
 }
-
-button:hover {
-  background-color: #0056b3;
-}
-
-.container {
-  position: relative;
-}
-
 .navigation-arrows {
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
-  width: 100%;
+  margin-bottom: 20px;
 }
-
 .arrow-link {
-  font-size: 1.5rem;
-  color: #007BFF;
   text-decoration: none;
-  cursor: pointer;
+  font-size: 24px;
+  color: #007BFF;
 }
-
 .arrow-link:hover {
   color: #0056b3;
-}
-
-.form-container {
-  margin-top: 20px;
-}
-
-.list-container {
-  margin-top: 20px;
-}
-
-.btn-small {
-  padding: 5px 10px; /* Anpassung der inneren Abstände */
-  font-size: 0.875rem; /* Anpassung der Schriftgröße */
-  margin: 2px; /* Anpassung der äußeren Abstände */
-  border: 1px solid #007BFF; /* Anpassung der Rahmenfarbe */
-  background-color: #007BFF; /* Anpassung der Hintergrundfarbe */
-  color: #fff; /* Anpassung der Schriftfarbe */
-  border-radius: 3px; /* Anpassung der Eckenradius */
-  cursor: pointer; /* Zeigeränderung beim Überfahren */
-}
-
-.btn-small:hover {
-  background-color: #0056b3; /* Anpassung der Hintergrundfarbe beim Hover */
 }
 </style>

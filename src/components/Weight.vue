@@ -20,6 +20,11 @@
       <button @click="saveWeight" class="btn-save">Speichern</button>
     </div>
 
+    <!-- Zeitspanne bis zum Erreichen des Ziels -->
+    <div v-if="timeToReachGoal !== null" class="goal-container">
+      <p>Du wirst dein Ziel in etwa {{ timeToReachGoal }} Monaten erreichen.</p>
+    </div>
+
     <!-- Liste der Gewichtseinträge -->
     <div class="list-container">
       <table v-if="weights.length > 0">
@@ -49,9 +54,8 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 
 // Definiere die Weight-Klasse
@@ -88,6 +92,17 @@ const endpoint = `${baseUrl}/Weight/weights`;
 function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString('de-DE');
 }
+
+// Berechnung der Zeitspanne bis zum Erreichen des Ziels
+const timeToReachGoal = computed(() => {
+  if (weightInput.value && weightGoalInput.value && weeklyGoalInput.value) {
+    const weightDifference = Math.abs(weightInput.value - weightGoalInput.value);
+    const weeksToGoal = weightDifference / weeklyGoalInput.value;
+    const monthsToGoal = weeksToGoal / 4.345;  // Durchschnittliche Anzahl der Wochen pro Monat
+    return Math.ceil(monthsToGoal);
+  }
+  return null;
+});
 
 // Funktion zum Abrufen der Gewichtseinträge
 async function fetchWeights() {
@@ -154,8 +169,6 @@ onMounted(async () => {
 });
 </script>
 
-
-
 <style scoped>
 .container {
   max-width: 600px;
@@ -191,7 +204,7 @@ onMounted(async () => {
   background-color: #4CAF50;
   color: #fff;
   border: none;
-  padding: 10px 20px;
+  padding: 3px 5px;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s ease;
@@ -202,10 +215,10 @@ onMounted(async () => {
 }
 
 .btn-delete {
-  background-color: #e53935;
+  background-color: #4CAF50;
   color: #fff;
   border: none;
-  padding: 5px 10px;
+  padding: 3px 5px;
   cursor: pointer;
   border-radius: 3px;
   transition: background-color 0.3s ease;
@@ -213,6 +226,16 @@ onMounted(async () => {
 
 .btn-delete:hover {
   background-color: #cc0000;
+}
+
+.goal-container {
+  margin-top: 20px;
+  background-color: #e7f4e4;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  color: #2a6d2a;
 }
 
 .list-container {
@@ -239,4 +262,3 @@ button {
   cursor: pointer;
 }
 </style>
-

@@ -5,17 +5,34 @@
     </div>
     <canvas ref="chartCanvas" class="chart" width="200" height="50"></canvas>
 
+    <!-- Pfeile zur Navigation -->
+    <div class="navigation-arrows">
+      <!-- Pfeil zur Seite /heartrate -->
+      <router-link to="/bloodpressure" class="arrow-link">
+        ←
+      </router-link>
+
+      <!-- Pfeil zur Seite /bloodpressure -->
+      <router-link to="/stepcount" class="arrow-link">
+        →
+      </router-link>
+    </div>
+
     <!-- Eingabeformular -->
     <div class="form-container">
       <h3>Neuer Blutzuckereintrag</h3>
-      <label for="bloodSugarLevel">Blutzuckerwert (mg/dL):</label>
-      <input v-model="bloodSugarLevelInput" id="bloodSugarLevel" type="number" placeholder="Blutzuckerwert">
-
-      <button @click="saveBloodSugar" class="btn-save">Speichern</button>
+      <form @submit.prevent="saveBloodSugar">
+        <label for="bloodSugarLevel">Blutzuckerwert (mg/dL):</label>
+        <input v-model="bloodSugarLevelInput" id="bloodSugarLevel" type="number" placeholder="Blutzuckerwert" required>
+        <button type="submit" class="btn-save">Speichern</button>
+        <p v-if="invalidInput">Bitte geben Sie einen gültigen Blutzuckerwert ein.</p>
+      </form>
     </div>
 
     <!-- Liste der Blutzuckereinträge -->
     <div class="list-container">
+      <h2>Blutzuckereinträge</h2>
+      <p>Anzahl der Blutzuckereinträge: {{ bloodSugars.length }}</p>
       <table v-if="bloodSugars.length > 0">
         <thead>
         <tr>
@@ -37,33 +54,23 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';
 import axios from 'axios';
-
-// Definiere die BloodSugar-Klasse
-class BloodSugar {
-  id: number;
-  dateRecorded: Date;
-  bloodSugarLevel: number;
-
-  constructor(id: number, dateRecorded: Date, bloodSugarLevel: number) {
-    this.id = id;
-    this.dateRecorded = dateRecorded;
-    this.bloodSugarLevel = bloodSugarLevel;
-  }
-}
+import { BloodSugar } from '@/model/BloodSugar';
 
 // Referenzen und Zustände
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const bloodSugars = ref<BloodSugar[]>([]);
 const bloodSugarLevelInput = ref<number>(0);
+const invalidInput = ref(false);
 let chart: Chart | null = null;
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
-const endpoint = `${baseUrl}/BloodSugars`;
+const endpoint = `${baseUrl}/BloodSugar/bloodsugar`;
 
 // Hilfsfunktion zum Formatieren des Datums
 function formatDate(date: Date): string {
@@ -87,6 +94,11 @@ async function fetchBloodSugars() {
 
 // Funktion zum Speichern eines neuen Blutzuckereintrags
 async function saveBloodSugar() {
+  if (!bloodSugarLevelInput.value || bloodSugarLevelInput.value <= 0) {
+    invalidInput.value = true;
+    return;
+  }
+
   const bloodSugarData = {
     dateRecorded: new Date().toISOString(),
     bloodSugarLevel: bloodSugarLevelInput.value,
@@ -104,6 +116,7 @@ async function saveBloodSugar() {
         response.data.bloodSugarLevel
     ));
     bloodSugarLevelInput.value = 0;
+    invalidInput.value = false;
     updateChart();
   } catch (error) {
     console.error('Fehler beim Speichern des Blutzuckers:', error);
@@ -170,6 +183,7 @@ onMounted(async () => {
 });
 </script>
 
+
 <style scoped>
 html, body {
   margin: 0;
@@ -179,17 +193,14 @@ html, body {
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   font-family: 'Open Sans', sans-serif;
   color: #333;
   background-color: #f9f9f9;
   padding: 20px;
-  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .header {
@@ -215,8 +226,8 @@ html, body {
 }
 
 .form-container input {
-  margin-bottom: 10px;
-  padding: 10px;
+  margin-bottom: 5px;
+  padding: 5px;
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #FF6347;
@@ -227,11 +238,11 @@ html, body {
   background-color: #FF6347;
   color: #fff;
   border: none;
-  padding: 10px 20px;
+  padding: 3px 5px;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s ease;
-  width: 100%;
+  width: 17%;
 }
 
 .btn-save:hover {
@@ -239,10 +250,10 @@ html, body {
 }
 
 .btn-delete {
-  background-color: #b30000;
+  background-color: #FF6347;
   color: #fff;
   border: none;
-  padding: 5px 10px;
+  padding: 3px 5px;
   cursor: pointer;
   border-radius: 3px;
   transition: background-color 0.3s ease;
@@ -284,4 +295,35 @@ button {
 .chart {
   margin-top: 20px;
 }
+
+.container {
+  position: relative;
+}
+
+.navigation-arrows {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.arrow-link {
+  font-size: 1.5rem;
+  color: #007BFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.arrow-link:hover {
+  color: #0056b3;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.list-container {
+  margin-top: 20px;
+}
 </style>
+

@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <h2>Blutdrucküberwachung</h2>
-    <canvas ref="chartCanvas" class="chart" width="200" height="50"></canvas>
 
     <!-- Eingabeformular -->
     <div class="form-container">
@@ -42,7 +41,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import Chart from 'chart.js/auto';
 import axios from 'axios';
 
 // Definiere die BloodPressure-Klasse
@@ -60,13 +58,10 @@ class BloodPressure {
   }
 }
 
-
 // Referenzen und Zustände
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const bloodPressures = ref<BloodPressure[]>([]);
 const systolicPressureInput = ref<number>(0);
 const diastolicPressureInput = ref<number>(0);
-let chart: Chart | null = null;
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
@@ -87,7 +82,6 @@ async function fetchBloodPressures() {
         entry.systolicPressure,
         entry.diastolicPressure
     ));
-    updateChart();
   } catch (error) {
     console.error('Fehler beim Abrufen der Blutdruckdaten:', error);
   }
@@ -115,7 +109,6 @@ async function saveBloodPressure() {
     ));
     systolicPressureInput.value = 0;
     diastolicPressureInput.value = 0;
-    updateChart();
   } catch (error) {
     console.error('Fehler beim Speichern des Blutdrucks:', error);
   }
@@ -126,63 +119,8 @@ async function deleteBloodPressure(id: number) {
   try {
     await axios.delete(`${endpoint}/${id}`);
     bloodPressures.value = bloodPressures.value.filter(bp => bp.id !== id);
-    updateChart();
   } catch (error) {
     console.error('Fehler beim Löschen des Blutdrucks:', error);
-  }
-}
-
-// Funktion zum Aktualisieren des Diagramms
-function updateChart() {
-  if (chartCanvas.value) {
-    const ctx = chartCanvas.value.getContext('2d');
-    if (ctx) {
-      if (chart) {
-        chart.destroy();
-      }
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: bloodPressures.value.map(bp => formatDate(bp.dateRecorded)),
-          datasets: [{
-            label: 'Systolischer Druck (mmHg)',
-            data: bloodPressures.value.map(bp => bp.systolicPressure),
-            borderColor: '#FF6347',
-            borderWidth: 2,
-            pointBackgroundColor: '#FF6347',
-            pointBorderColor: '#FFF',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            tension: 0.4
-          }, {
-            label: 'Diastolischer Druck (mmHg)',
-            data: bloodPressures.value.map(bp => bp.diastolicPressure),
-            borderColor: '#4682B4',
-            borderWidth: 2,
-            pointBackgroundColor: '#4682B4',
-            pointBorderColor: '#FFF',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            tension: 0.4
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          },
-          elements: {
-            line: {
-              tension: 0.4
-            },
-            point: {
-              radius: 5
-            }
-          }
-        }
-      });
-    }
   }
 }
 
@@ -272,9 +210,5 @@ table th {
 
 button {
   cursor: pointer;
-}
-
-.chart {
-  margin-top: 20px;
 }
 </style>

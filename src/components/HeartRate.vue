@@ -3,6 +3,11 @@
     <h2>Herzfrequenzüberwachung</h2>
     <canvas ref="chartCanvas" width="200" height="50"></canvas>
 
+    <!-- Pfeil zur Navigation -->
+    <div class="navigation-arrow">
+      <router-link to="/sleeppattern" class="arrow-link">→</router-link>
+    </div>
+
     <!-- Eingabeformular für neue Herzfrequenzdaten -->
     <div class="form-container">
       <h2>Neuer Herzfrequenz-Eintrag</h2>
@@ -16,6 +21,19 @@
       </form>
     </div>
 
+    <!-- Eingabeformular für das Aktualisieren von Herzfrequenzdaten -->
+    <div class="form-container" v-if="editableHeartRate">
+      <h2>Herzfrequenzdaten aktualisieren</h2>
+      <form @submit.prevent="updateHeartRate">
+        <label>
+          Neuer Herzfrequenzwert:
+          <input v-model="editableHeartRate.heartRateValue" type="number" placeholder="Neuer Herzfrequenzwert" required>
+        </label>
+        <button type="submit">Aktualisieren</button>
+        <button @click="cancelUpdate" type="button">Abbrechen</button>
+      </form>
+    </div>
+
     <!-- Liste der Herzfrequenzdaten -->
     <div class="list-container">
       <h2>Herzfrequenzdaten</h2>
@@ -23,6 +41,7 @@
       <ul>
         <li v-for="(heartRate, index) in heartRates" :key="index">
           Datum: <strong>{{ formatDate(heartRate.dateRecorded) }}</strong>, Herzfrequenz: {{ heartRate.heartRateValue }}
+          <button @click="editHeartRate(heartRate)" type="button">Bearbeiten</button>
           <button @click="deleteHeartRate(heartRate.id)" type="reset">Löschen</button>
         </li>
       </ul>
@@ -43,6 +62,7 @@ const heartRates = ref<HeartRate[]>([]);
 const newHeartRate = ref<Partial<HeartRate>>({
   heartRateValue: 72
 });
+const editableHeartRate = ref<Partial<HeartRate> | null>(null);
 let chart: Chart | null = null;
 const invalidInput = ref(false); // Zustand für ungültige Eingabe
 
@@ -101,6 +121,45 @@ async function submitHeartRate() {
   } catch (error) {
     console.error('Fehler beim Speichern der Herzfrequenz:', error);
   }
+}
+
+// Funktion zum Bearbeiten einer Herzfrequenz
+function editHeartRate(heartRate: HeartRate) {
+  editableHeartRate.value = { ...heartRate };
+}
+
+// Funktion zum Aktualisieren einer Herzfrequenz
+async function updateHeartRate() {
+  if (!editableHeartRate.value?.heartRateValue || editableHeartRate.value.heartRateValue <= 0) {
+    invalidInput.value = true;
+    return;
+  }
+
+  try {
+    const response = await axios.put(`${endpoint}/${editableHeartRate.value.id}`, editableHeartRate.value, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const index = heartRates.value.findIndex(hr => hr.id === response.data.id);
+    if (index !== -1) {
+      heartRates.value[index] = new HeartRate(
+          response.data.id,
+          new Date(response.data.dateRecorded),
+          response.data.heartRateValue
+      );
+    }
+    editableHeartRate.value = null; // Zurücksetzen des Eingabefelds
+    updateChart(); // Aktualisiere das Diagramm nach dem Aktualisieren
+    invalidInput.value = false; // Zurücksetzen der ungültigen Eingabe-Meldung
+  } catch (error) {
+    console.error('Fehler beim Aktualisieren der Herzfrequenz:', error);
+  }
+}
+
+// Funktion zum Abbrechen der Aktualisierung
+function cancelUpdate() {
+  editableHeartRate.value = null;
 }
 
 // Funktion zum Löschen einer Herzfrequenz
@@ -164,3 +223,34 @@ onMounted(async () => {
 });
 </script>
 
+<style scoped>
+.container {
+  position: relative;
+}
+
+.navigation-arrow {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+}
+
+.arrow-link {
+  font-size: 2rem;
+  color: #007BFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.arrow-link:hover {
+  color: #0056b3;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.list-container {
+  margin-top: 20px;
+}
+</style>

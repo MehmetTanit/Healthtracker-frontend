@@ -3,6 +3,19 @@
     <h2>Schlafmusterüberwachung</h2>
     <canvas ref="chartCanvas" width="200" height="50"></canvas>
 
+    <!-- Pfeile zur Navigation -->
+    <div class="navigation-arrows">
+      <!-- Pfeil zur Seite /heartrate -->
+      <router-link to="/heartrate" class="arrow-link">
+        ←
+      </router-link>
+
+      <!-- Pfeil zur Seite /bloodpressure -->
+      <router-link to="/bloodpressure" class="arrow-link">
+         →
+      </router-link>
+    </div>
+
     <!-- Eingabeformular -->
     <div class="form-container">
       <h3>Neuer SchlafmusterEintrag</h3>
@@ -56,35 +69,7 @@
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';
 import axios from 'axios';
-
-// Definiere die SleepPattern-Klasse
-class SleepPattern {
-  id: number;
-  dateRecorded: Date;
-  sleepDuration: number;
-  lightSleepDuration: number;
-  deepSleepDuration: number;
-  interruptions: number;
-  sleepQuality: number;
-
-  constructor(
-      id: number,
-      dateRecorded: Date,
-      sleepDuration: number,
-      lightSleepDuration: number,
-      deepSleepDuration: number,
-      interruptions: number,
-      sleepQuality: number
-  ) {
-    this.id = id;
-    this.dateRecorded = dateRecorded;
-    this.sleepDuration = sleepDuration;
-    this.lightSleepDuration = lightSleepDuration;
-    this.deepSleepDuration = deepSleepDuration;
-    this.interruptions = interruptions;
-    this.sleepQuality = sleepQuality;
-  }
-}
+import { SleepPattern } from '@/model/SleepPattern';
 
 // Referenzen und Zustände
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -260,11 +245,41 @@ table {
 
 table th, table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 4px;
 }
 
 table th {
   background-color: #f2f2f2;
   text-align: left;
+}
+
+.container {
+  position: relative;
+}
+
+.navigation-arrows {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.arrow-link {
+  font-size: 1.5rem;
+  color: #007BFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.arrow-link:hover {
+  color: #0056b3;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.list-container {
+  margin-top: 20px;
 }
 </style>

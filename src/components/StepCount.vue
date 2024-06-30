@@ -3,6 +3,19 @@
     <h2>Schrittzählerüberwachung</h2>
     <canvas ref="chartCanvas" class="chart" width="200" height="50"></canvas>
 
+    <!-- Pfeile zur Navigation -->
+    <div class="navigation-arrows">
+      <!-- Pfeil zur Seite /heartrate -->
+      <router-link to="/bloodsugar" class="arrow-link">
+        ←
+      </router-link>
+
+      <!-- Pfeil zur Seite /bloodpressure -->
+      <router-link to="/weight" class="arrow-link">
+        →
+      </router-link>
+    </div>
+
     <!-- Eingabeformular -->
     <div class="form-container">
       <h3>Neuer Schrittzähler-Eintrag</h3>
@@ -10,7 +23,7 @@
       <input v-model="stepCountInput" id="stepCount" type="number" placeholder="Schrittanzahl">
       <label for="targetStepCount">Tägliches Ziel:</label>
       <input v-model="targetStepCountInput" id="targetStepCount" type="number" placeholder="Tägliches Ziel">
-      <button @click="saveStepCount">Speichern</button>
+      <button @click="saveStepCount"class="btn-small" >Speichern</button>
     </div>
 
     <!-- Liste der Schrittzähler-Einträge -->
@@ -31,7 +44,7 @@
           <td>{{ entry.stepCount }}</td>
           <td>{{ entry.targetStepCount }}</td>
           <td>{{ calculateDifference(entry.stepCount, entry.targetStepCount) }}</td>
-          <td><button @click="deleteStepCount(entry.id)">Löschen</button></td>
+          <td><button @click="deleteStepCount(entry.id)"class="btn-small">Löschen</button></td>
         </tr>
         </tbody>
       </table>
@@ -44,21 +57,7 @@
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';
 import axios from 'axios';
-
-// Definiere die StepCount-Klasse
-class StepCount {
-  id: number;
-  dateRecorded: Date;
-  stepCount: number;
-  targetStepCount: number;
-
-  constructor(id: number, dateRecorded: Date, stepCount: number, targetStepCount: number) {
-    this.id = id;
-    this.dateRecorded = dateRecorded;
-    this.stepCount = stepCount;
-    this.targetStepCount = targetStepCount;
-  }
-}
+import { StepCount } from '@/model/StepCount';
 
 // Referenzen und Zustände
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -244,5 +243,50 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.container {
+  position: relative;
+}
+
+.navigation-arrows {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.arrow-link {
+  font-size: 1.5rem;
+  color: #007BFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.arrow-link:hover {
+  color: #0056b3;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.list-container {
+  margin-top: 20px;
+}
+
+.btn-small {
+  padding: 5px 10px; /* Anpassung der inneren Abstände */
+  font-size: 0.875rem; /* Anpassung der Schriftgröße */
+  margin: 2px; /* Anpassung der äußeren Abstände */
+  border: 1px solid #007BFF; /* Anpassung der Rahmenfarbe */
+  background-color: #007BFF; /* Anpassung der Hintergrundfarbe */
+  color: #fff; /* Anpassung der Schriftfarbe */
+  border-radius: 3px; /* Anpassung der Eckenradius */
+  cursor: pointer; /* Zeigeränderung beim Überfahren */
+}
+
+.btn-small:hover {
+  background-color: #0056b3; /* Anpassung der Hintergrundfarbe beim Hover */
 }
 </style>

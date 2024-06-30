@@ -5,12 +5,11 @@
       <div class="container">
         <h1>Willkommen zu Ihrem Gesundheitstracker</h1>
         <p>Verfolgen und verwalten Sie Ihre wichtigsten Gesundheitsdaten mühelos.</p>
-        <a href="#" class="btn btn-primary btn-lg">Erfahren Sie mehr</a>
       </div>
     </section>
 
     <!-- Features Section -->
-    <section class="py-5">
+    <section class="features-section py-5">
       <div class="container">
         <div class="row text-center">
           <div class="col-md-4" v-for="(feature, index) in features" :key="index">
@@ -85,26 +84,58 @@ const features = ref([
   color: white;
   padding: 100px 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh; /* Höhe auf 70% des Viewports gesetzt */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.hero-section p {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.features-section {
+  background-color: #f8f9fa;
 }
 
 .feature-link {
   text-decoration: none;
   color: inherit;
+  transition: transform 0.3s ease;
 }
 
 .feature-link:hover {
   text-decoration: none;
-  color: inherit;
+  color: #007bff;
+  transform: translateY(-10px);
 }
 
 .feature-icon {
   font-size: 2.5rem;
   color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.feature-link:hover .feature-icon {
+  color: #0056b3;
 }
 
 .footer {
-  background-color: #f8f9fa;
+  background-color: #343a40;
+  color: #f8f9fa;
   padding: 20px 0;
   text-align: center;
+}
+
+.footer p {
+  margin: 0;
 }
 </style>

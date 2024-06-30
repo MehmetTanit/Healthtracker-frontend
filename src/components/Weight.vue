@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <h2>Gewichtsüberwachung</h2>
-    <canvas ref="chartCanvas" class="chart" width="200" height="50"></canvas>
 
     <!-- Eingabeformular -->
     <div class="form-container">
@@ -50,9 +49,9 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import Chart from 'chart.js/auto';
 import axios from 'axios';
 
 // Definiere die Weight-Klasse
@@ -64,28 +63,26 @@ class Weight {
   weightGoal: number;
   weeklyGoal: number;
 
-  constructor(id: number, dateRecorded: Date, weight: number, height: number, weightGoal: number, weeklyGoal: number) {
-    this.id = id;
-    this.dateRecorded = dateRecorded;
-    this.weight = weight;
-    this.height = height;
-    this.weightGoal = weightGoal;
-    this.weeklyGoal = weeklyGoal;
+  constructor(id?: number, dateRecorded?: Date, weight?: number, height?: number, weightGoal?: number, weeklyGoal?: number) {
+    this.id = id ?? 0;
+    this.dateRecorded = dateRecorded ?? new Date();
+    this.weight = weight ?? 0;
+    this.height = height ?? 0;
+    this.weightGoal = weightGoal ?? 0;
+    this.weeklyGoal = weeklyGoal ?? 0;
   }
 }
 
 // Referenzen und Zustände
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const weights = ref<Weight[]>([]);
 const weightInput = ref<number>(0);
 const heightInput = ref<number>(0);
 const weightGoalInput = ref<number>(0);
 const weeklyGoalInput = ref<number>(0);
-let chart: Chart | null = null;
 
 // API-Endpunkt
 const baseUrl = import.meta.env.VITE_APP_BACKEND_BASE_URL;
-const endpoint = `${baseUrl}/Weights`;
+const endpoint = `${baseUrl}/Weight/weights`;
 
 // Hilfsfunktion zum Formatieren des Datums
 function formatDate(date: Date): string {
@@ -104,7 +101,6 @@ async function fetchWeights() {
         entry.weightGoal,
         entry.weeklyGoal
     ));
-    updateChart();
   } catch (error) {
     console.error('Fehler beim Abrufen der Gewichtsdaten:', error);
   }
@@ -138,7 +134,6 @@ async function saveWeight() {
     heightInput.value = 0;
     weightGoalInput.value = 0;
     weeklyGoalInput.value = 0;
-    updateChart();
   } catch (error) {
     console.error('Fehler beim Speichern des Gewichts:', error);
   }
@@ -149,53 +144,8 @@ async function deleteWeight(id: number) {
   try {
     await axios.delete(`${endpoint}/${id}`);
     weights.value = weights.value.filter(w => w.id !== id);
-    updateChart();
   } catch (error) {
     console.error('Fehler beim Löschen des Gewichts:', error);
-  }
-}
-
-// Funktion zum Aktualisieren des Diagramms
-function updateChart() {
-  if (chartCanvas.value) {
-    const ctx = chartCanvas.value.getContext('2d');
-    if (ctx) {
-      if (chart) {
-        chart.destroy();
-      }
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: weights.value.map(w => formatDate(w.dateRecorded)),
-          datasets: [{
-            label: 'Gewicht (kg)',
-            data: weights.value.map(w => w.weight),
-            borderColor: '#4CAF50',
-            borderWidth: 2,
-            pointBackgroundColor: '#4CAF50',
-            pointBorderColor: '#FFF',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            tension: 0.4
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          },
-          elements: {
-            line: {
-              tension: 0.4
-            },
-            point: {
-              radius: 5
-            }
-          }
-        }
-      });
-    }
   }
 }
 
@@ -203,6 +153,8 @@ onMounted(async () => {
   await fetchWeights();
 });
 </script>
+
+
 
 <style scoped>
 .container {
@@ -228,7 +180,7 @@ onMounted(async () => {
 
 .form-container input {
   margin-bottom: 10px;
-  padding: 10px;
+  padding: 5px;
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #ccc;
@@ -250,7 +202,7 @@ onMounted(async () => {
 }
 
 .btn-delete {
-  background-color: #f44336;
+  background-color: #e53935;
   color: #fff;
   border: none;
   padding: 5px 10px;
@@ -260,7 +212,7 @@ onMounted(async () => {
 }
 
 .btn-delete:hover {
-  background-color: #e53935;
+  background-color: #cc0000;
 }
 
 .list-container {
@@ -286,8 +238,5 @@ table th {
 button {
   cursor: pointer;
 }
-
-.chart {
-  margin-top: 20px;
-}
 </style>
+

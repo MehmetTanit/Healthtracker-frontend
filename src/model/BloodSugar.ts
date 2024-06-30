@@ -1,18 +1,15 @@
 export class BloodSugar {
     id: number;
     dateRecorded: Date;
-    value: number;
-    unit: string;
+    bloodSugarLevel: number;
 
     constructor(
         id: number,
         dateRecorded: Date,
-        value: number,
-        unit: string
+        bloodSugarLevel: number
     ) {
         this.id = id;
         this.dateRecorded = dateRecorded;
-        this.value = value;
-        this.unit = unit;
+        this.bloodSugarLevel = bloodSugarLevel;
     }
 }
